@@ -39,7 +39,9 @@
 
 ; ex7
 (defn monotonic? [s]
-  (or (apply <= s) (apply >= s)))
+  (if (empty? s)
+    true
+    (or (apply <= s) (apply >= s))))
 
 ; ex8
 (defn transpose [s]

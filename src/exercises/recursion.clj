@@ -1,5 +1,5 @@
 (ns exercises.recursion
-  (:use [exercises.collections :only (snip)]))
+  (:use [exercises.collections :only (snip halve)]))
 
 ; ex1
 (defn rsum [seq]
@@ -97,35 +97,82 @@
     (cons seq (tails (rest seq)))))
 
 (defn inits [seq]
-  )
+  (if (empty? seq)
+    (cons '() '())
+    (cons seq (inits (butlast seq)))))
 
-()
+(defn inits [seq]
+  (if (empty? seq)
+    (cons '() '())
+    (map reverse (tails (reverse seq)))))
 
-; ex3
-(defn fibonacci-n [n]
-  (if (<= n 2)
-	1
-	(+ (fibonacci-n (- n 1))
-	   (fibonacci-n (- n 2)))))
+; ex12
+(defn split-into-monotonics [seq]
+  (if (empty? seq)
+    '()
+    (let [split-help (fn [pre suf]
+                       (if (or (apply <= pre)
+                               (apply >= pre))
+                         (list pre suf)
+                         (recur (butlast pre)
+                                (cons (last pre)
+                                      suf))))
+          [pre suf] (split-help seq '())]
+      (cons pre (split-into-monotonics suf)))))
 
-(defn fibonacci-n2 [n]
-  (take n ((fn fib []
-			 (lazy-cat [1] [1] (map + (fib) (rest (fib))))))))
+; ex13
+(defn rotations [seq]
+  (let [rot-help (fn rot-help [tails inits]
+                   (if (empty? tails)
+                     '()
+                     (cons (concat (first tails)
+                                   (first inits))
+                           (rot-help (rest tails)
+                                     (rest inits)))))]
+    (rest (rot-help (tails seq) (reverse (inits seq))))))
 
-; ex4
-(defn rotations [s]
-  (let [rotate-once (fn  [s]
-					  (if (empty? s)
-						s
-						(concat (rest s) (list (first s)))))
-		rotates (fn  [acc]
-				  (let [r (rotate-once (first acc))]
-					(if (or (empty? r) (= r s))
-					  acc
-					  (recur (cons r acc)))))]
-	(let [s (seq [(seq s)])]
-	  (rotates s))))
+; ex14
+(defn frequencies [seq]
+  (let [fre-help (fn [seq acc]
+                   (if (empty? seq)
+                     acc
+                     (let [e (first seq)
+                           how-many (get acc e 0)]
+                       (recur (rest seq)
+                              (assoc acc e (inc how-many))))))]
+    (fre-help seq {})))
 
+; ex15
+(defn un-frequencies [map]
+  (if (empty? map)
+    '()
+    (let [[what times] (first map)]
+      (concat (repeat times what) (un-frequencies (rest map))))))
+
+; ex16
+(defn merge [seq1 seq2]
+  (let [merge-help (fn [seq1 seq2 acc]
+                     (cond (empty? seq1)
+                           (concat acc seq2)
+                           (empty? seq2)
+                           (concat acc seq1)
+                           :else
+                           (let [s1 (first seq1)
+                                 s2 (first seq2)]
+                             (if (< s1 s2)
+                               (recur (rest seq1) seq2 (concat acc [s1]))
+                               (recur seq1 (rest seq2) (concat acc [s2]))))))]
+    (merge-help seq1 seq2 '())))
+
+; ex17
+(defn merge-sort [seq]
+  (if (<= (count seq) 1)
+    seq
+    (let [[fst-half snd-half] (halve seq)]
+      (merge (merge-sort fst-half)
+             (merge-sort snd-half)))))
+
+; ex18
 (defn permutations [s]
   (let [perms (fn [[fst & rest]]
 				(map (fn [e] (cons fst e)) (permutations rest)))]
@@ -133,6 +180,7 @@
 	  (list s)
 	  (apply concat (map perms (rotations s))))))
 
+; ex19
 (defn powerset [s]
   (if (empty? s)
 	(list (list))
