@@ -45,11 +45,13 @@
 
 ; ex8
 (defn transpose [s]
-  (apply (partial map vector) s))
+  (if (empty? s)
+    '()
+    (apply (partial map vector) s)))
 
 ; ex9
 (defn exterminate [m]
-  (apply conj {} (filter #(< (% 0) (% 1)) m)))
+  (into {} (filter (fn [[x y]] (<= x y)) m)))
 
 ; ex10
 (defn take-3 [[fst snd rd & rest]]

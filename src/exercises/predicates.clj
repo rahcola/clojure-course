@@ -18,7 +18,7 @@
   (fn [x] (and (p1 x) (p2 x))))
 
 ; ex4
-(defn every-book-has-a-title [books]
+(defn every-book-has-a-title? [books]
   (every? #(contains? % :title) books))
 
 ; ex5

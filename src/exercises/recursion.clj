@@ -31,19 +31,19 @@
 ; 6
 
 ; ex3
-(defn last-elem [seq]
+(defn last-element [seq]
   (if (empty? (rest seq))
     (first seq)
-    (last-elem (rest seq))))
+    (last-element (rest seq))))
 
 ; ex4
-(defn sequence-contains? [seq a]
+(defn sequence-contains? [a seq]
   (cond (empty? seq)
         false
         (= (first seq) a)
         true
         :else
-        (recur (rest seq) a)))
+        (recur a (rest seq))))
 
 ; ex5
 (defn seq= [seq1 seq2]
@@ -77,11 +77,11 @@
     (cons (dec n) (my-range (dec n)))))
 
 ; ex9
-(defn map1 [fn seq]
+(defn map-1 [fn seq]
   (if (empty? seq)
     seq
     (cons (fn (first seq))
-          (map1 fn (rest seq)))))
+          (map-1 fn (rest seq)))))
 
 ; ex10 FIXME
 (defn snip-many [seq]
@@ -110,9 +110,10 @@
 (defn split-into-monotonics [seq]
   (if (empty? seq)
     '()
-    (let [split-help (fn [pre suf]
-                       (if (or (apply <= pre)
-                               (apply >= pre))
+    (let [monotonic? (fn [seq] (or (apply <= seq)
+                                   (apply >= seq)))
+          split-help (fn [pre suf]
+                       (if (monotonic? pre)
                          (list pre suf)
                          (recur (butlast pre)
                                 (cons (last pre)
@@ -122,24 +123,21 @@
 
 ; ex13
 (defn rotations [seq]
-  (let [rot-help (fn rot-help [tails inits]
-                   (if (empty? tails)
-                     '()
-                     (cons (concat (first tails)
-                                   (first inits))
-                           (rot-help (rest tails)
-                                     (rest inits)))))]
-    (rest (rot-help (tails seq) (reverse (inits seq))))))
+  (rest (map concat
+             (reverse (tails seq))
+             (inits seq))))
 
 ; ex14
-(defn frequencies [seq]
+(defn my-frequencies [seq]
   (let [fre-help (fn [seq acc]
                    (if (empty? seq)
                      acc
-                     (let [e (first seq)
-                           how-many (get acc e 0)]
-                       (recur (rest seq)
-                              (assoc acc e (inc how-many))))))]
+                     (recur (rest seq)
+                            (assoc acc
+                              (first seq)
+                              (inc (get acc
+                                        (first seq)
+                                        0))))))]
     (fre-help seq {})))
 
 ; ex15
@@ -150,7 +148,7 @@
       (concat (repeat times what) (un-frequencies (rest map))))))
 
 ; ex16
-(defn merge [seq1 seq2]
+(defn seq-merge [seq1 seq2]
   (let [merge-help (fn [seq1 seq2 acc]
                      (cond (empty? seq1)
                            (concat acc seq2)
@@ -165,20 +163,23 @@
     (merge-help seq1 seq2 '())))
 
 ; ex17
-(defn merge-sort [seq]
+(defn mergesort [seq]
   (if (<= (count seq) 1)
     seq
     (let [[fst-half snd-half] (halve seq)]
-      (merge (merge-sort fst-half)
-             (merge-sort snd-half)))))
+      (seq-merge (mergesort fst-half)
+                 (mergesort snd-half)))))
 
 ; ex18
 (defn permutations [s]
   (let [perms (fn [[fst & rest]]
 				(map (fn [e] (cons fst e)) (permutations rest)))]
-	(if (empty? s)
-	  (list s)
-	  (apply concat (map perms (rotations s))))))
+	(cond (empty? s)
+          '()
+          (= 1 (count s))
+          (list s)
+          :else
+          (apply concat (map perms (rotations s))))))
 
 ; ex19
 (defn powerset [s]
