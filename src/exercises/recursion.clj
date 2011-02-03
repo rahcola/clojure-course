@@ -4,15 +4,15 @@
 ; ex1
 (defn rsum [seq]
   (if (empty? seq)
-	0
-	(+ (first seq) (rsum (rest seq)))))
+    0
+    (+ (first seq) (rsum (rest seq)))))
 
 (defn rsum2 [seq]
   (cond (empty? seq) 0
-		(= (count seq) 1) (first seq)
-		:else (let [tail (rest seq)
-					sum (+ (first seq) (first tail))]
-				(recur (cons sum (rest tail))))))
+        (= (count seq) 1) (first seq)
+        :else (let [tail (rest seq)
+                    sum (+ (first seq) (first tail))]
+                (recur (cons sum (rest tail))))))
 
 ; ex1
 (defn product [s]
@@ -86,7 +86,7 @@
 ; ex10 FIXME
 (defn snip-many [seq]
   (if (empty? seq)
-    (list seq)
+    (list)
     (let [[head tail] (snip seq)]
       (cons head (snip-many tail)))))
 
@@ -135,9 +135,7 @@
                      (recur (rest seq)
                             (assoc acc
                               (first seq)
-                              (inc (get acc
-                                        (first seq)
-                                        0))))))]
+                              (inc (get acc (first seq) 0))))))]
     (fre-help seq {})))
 
 ; ex15
@@ -173,8 +171,8 @@
 ; ex18
 (defn permutations [s]
   (let [perms (fn [[fst & rest]]
-				(map (fn [e] (cons fst e)) (permutations rest)))]
-	(cond (empty? s)
+                (map (fn [e] (cons fst e)) (permutations rest)))]
+    (cond (empty? s)
           '()
           (= 1 (count s))
           (list s)
@@ -184,9 +182,9 @@
 ; ex19
 (defn powerset [s]
   (if (empty? s)
-	(list (list))
-	(let [augment-subsets (fn [e T] (map #(cons e %) T))
-		  e (first s)
-		  t (rest s)]
-	  (concat (augment-subsets e (powerset t))
-			  (powerset t)))))
+    (list (list))
+    (let [augment-subsets (fn [e T] (map #(cons e %) T))
+          e (first s)
+          t (rest s)]
+      (concat (augment-subsets e (powerset t))
+              (powerset t)))))
