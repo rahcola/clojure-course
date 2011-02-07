@@ -3,9 +3,12 @@
 
 ; ex 1
 (defn generic-doublificate [a]
-  (cond (number? a) (* 2 a)
-        (and (coll? a) (empty? a)) nil
-        (or (list? a) (vector? a)) (map #(generic-doublificate %) a)
+  (cond (number? a)
+        (* 2 a)
+        (and (coll? a) (empty? a))
+        nil
+        (or (list? a) (vector? a))
+        (map #(generic-doublificate %) a)
         :else true))
 
 ; ex 2
@@ -28,5 +31,6 @@
 
 ; ex6
 (defn first-value-for-key [k maps]
-  (get (some #(if (contains? % k) %) maps) k))
+  (get (some #(if (contains? % k) %) maps) k)
+  (some k maps))
 

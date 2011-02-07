@@ -60,8 +60,8 @@
        (test-main "store a 42\nstore b a\n+ a b") => "84")
 
 (facts "Bowser"
-       (test-main "+ 0 2 3")
-         => "Wrong number of arguments to +: expects 2, you gave 3.")
+       (test-main "pow 0 2 3")
+         => "Wrong number of arguments to pow: expects between 2 and 2, you gave 3.")
 
 (facts "main"
        (test-main "+ 2 2") => "4"

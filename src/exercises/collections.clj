@@ -4,7 +4,7 @@
 (defn doublificate [m]
   (into m (map #(vector (str "double-" (nth % 0))
                         (* 2 (nth % 1)))
-               (seq m))))
+               m)))
 
 ; ex2
 (defn halve [s]
@@ -30,11 +30,8 @@
 ; ex6
 (defn describe-books [books]
   (apply str "I have " (count books) " books."
-         (map #(str " "
-                    (% :title)
-                    " was written by "
-                    (% :author)
-                    ".")
+         (map #(str " " (% :title)
+                    " was written by " (% :author) ".")
               books)))
 
 ; ex7
