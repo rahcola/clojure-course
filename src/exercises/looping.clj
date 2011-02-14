@@ -15,7 +15,7 @@
 
 ; ex2
 (defn last-element [seq]
-  (if (<= (count seq) 1)
+  (if (empty? (rest seq))
     (first seq)
     (recur (rest seq))))
 
@@ -35,12 +35,14 @@
 
 ; ex4
 (defn find-first-index [pred seq]
-  (cond (empty? seq)
-        nil
-        (pred (first seq))
-        (first seq)
-        :else
-        (recur pred (rest seq))))
+  (loop [seq seq
+         index 0]
+    (cond (empty? seq)
+          nil
+          (pred (first seq))
+          index
+          :else
+          (recur (rest seq) (inc index)))))
 
 ; ex5
 (defn avg [numbers]
@@ -90,10 +92,9 @@
 (defn cut-at-repetition [seq]
   (loop [seq seq
          result []]
-    (cond (or (empty? seq))
-          result
-          (= (first seq) (second seq))
-          (conj result (first seq))
-          :else
-          (recur (rest seq)
-                 (conj result (first seq))))))
+    (if (or (empty? seq)
+            (some (partial = (first seq)) result))
+      result
+      (recur (rest seq)
+             (conj result
+                   (first seq))))))

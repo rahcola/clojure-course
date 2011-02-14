@@ -35,20 +35,9 @@
                                arity-min
                                arity-max)))))
 
-(deftype StoreFn [fn arity-min arity-max]
-  ICalcFn
-  (calc-call [this args]
-             (let [arg-count (count args)]
-               (if (rigth-number-of-args? arity-min arg-count arity-max)
-                 (apply fn args)
-                 [(wrong-n-args "store"
-                                arg-count
-                                arity-min
-                                arity-max)
-                  (first args)]))))
-
 (defn lookup [var-table var]
-  (get var-table var (str "Variable " var " not defined")))
+  [(get var-table var (str "Variable " var " not defined"))
+   var-table])
 
 (defn apply-operator [operator args]
   (if (not-every? number? args)
@@ -59,12 +48,31 @@
     (calc-call operator args)))
 
 (defn compute [command args fn-table var-table]
+  (def store (CalcFn. "store"
+                      (fn [args]
+                        (let [arg-count (count args)]
+                          (if (rigth-number-of-args? 3 arg-count 3)
+                            (let [var-table (first args)
+                                  var (second args)
+                                  value (first (compute (nth args 2)
+                                                        []
+                                                        {}
+                                                        var-table))]
+                              (if (number? value)
+                                [(str "Stored " var "=" value)
+                                 (assoc var-table var value)]
+                                [(str "Invalid value: " value)
+                                 var-table]))
+                            [(wrong-n-args "store" arg-count 3 3) var-table])))
+                      3
+                      3))
+  
   (cond (number? (string->number command))
         [(string->number command) var-table]
         (and (empty? args) (nil? (fn-table command)))
-        [(lookup var-table command) var-table]
+        (lookup var-table command)
         (= "store" command)
-        (calc-call (fn-table :store) (cons var-table args))
+        (calc-call store (cons var-table args))
         :else
         (let [operator (fn-table command)
               args (map #(first (compute % [] fn-table var-table))
@@ -98,15 +106,6 @@
                   (fn [x e] (int (Math/pow x e)))
                   2
                   2)
-   :store (StoreFn. (fn [var-table var value]
-                      (let [value (first (compute value [] {} var-table))]
-                        (if (number? value)
-                          [(str "Stored " var "=" value)
-                           (assoc var-table var value)]
-                          [(str "Invalid value: " value)
-                           var-table])))
-                    3
-                    3)
    })
 
 (defn main-fn [last-result var-table]
